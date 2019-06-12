@@ -18,7 +18,7 @@ import './styles/App.css';
  */
 const imageDatas = (function genImageURL(imageDatasArr) {
   for (let i = 0; i < imageDatasArr.length; i++) {
-    var singleImageData = imageDatasArr[i];
+    const singleImageData = imageDatasArr[i];
 
     singleImageData.imageURL = require('./images/' + singleImageData.fileName);
     imageDatasArr[i] = singleImageData;
@@ -32,73 +32,28 @@ const getRangeRandom = (low, high) => Math.floor(Math.random() * (high - low) + 
 //获取0~30°之间的一个任意正负值
 const get30DegRandom = () => (Math.random() > 0.5 ? '' : '-') + Math.floor(Math.random() * 30);
 
-let Constant = {
-  centerPos: { left: 0, right: 0 },
-  //水平方向的取值范围
-  hPosRange: { leftSecX: [0, 0], rightSecX: [0, 0], y: [0, 0] },
-  //垂直方向的取值范围
-  vPosRange: { x: [0, 0], topY: [0, 0] }
-};
-
 export const App = () => {
-  const defaultState = createState();
-  const [imgsArrangeArr, setImgsArrangeArr] = useState(defaultState);
+  const [imgsArrangeArr, setImgsArrangeArr] = useState(createState);
   const imgRef = useRef(null);
   const stateRef = useRef(null);
 
-  useEffect(() => {
-    //首先拿到舞台的大小
-    const stageW = stateRef.current.scrollWidth;
-    const stageH = stateRef.current.scrollHeight;
-    console.log("stageW: ", stageW);
-    console.log("stageH: ", stageH);
-
-    const halfStageW = Math.floor(stageW / 2);
-    const halfStageH = Math.floor(stageH / 2);
-    const imgW = imgRef.current.scrollWidth;
-    const imgH = imgRef.current.scrollHeight;
-    console.log("imgW: ", imgW);
-    console.log("imgH: ", imgH);
-
-    const halfImgW = Math.floor(imgW / 2);
-    const halfImgH = Math.floor(imgH / 2);
-    /**
-     * 计算中心图片的位置点
-     */
-    Constant.centerPos = {
-      left: halfStageW - halfImgW,
-      top: halfStageH - halfImgH
-    };
-
-    //计算左侧右侧图片区域排布位置的取值范围
-    Constant.hPosRange.leftSecX[0] = -halfImgW;
-    Constant.hPosRange.leftSecX[1] = halfStageW - halfImgW * 3;
-
-    Constant.hPosRange.rightSecX[0] = halfStageW + halfImgW;
-    Constant.hPosRange.rightSecX[1] = stageW - halfImgW;
-
-    Constant.hPosRange.y[0] = -halfImgH;
-    Constant.hPosRange.y[1] = stageH - halfImgH;
-
-    //计算左侧右侧图片区域排布位置的取值范围
-    Constant.vPosRange.topY[0] = -halfImgH;
-    Constant.vPosRange.topY[1] = halfStageH - halfImgH * 3;
-
-    Constant.vPosRange.x[0] = halfImgW - imgW;
-    Constant.vPosRange.x[1] = halfImgW;
-    let num = Math.floor(Math.random() * 10);
-    rearrange(num);
-  }, []);
+  const Constant = useRef({
+    centerPos: { left: 0, right: 0 },
+    //水平方向的取值范围
+    hPosRange: { leftSecX: [0, 0], rightSecX: [0, 0], y: [0, 0] },
+    //垂直方向的取值范围
+    vPosRange: { x: [0, 0], topY: [0, 0] }
+  });
 
   /**
-  *重新布局所有图片
-  *@param: centerIndex 指定居中排布那个图片
-  */
+*重新布局所有图片
+*@param: centerIndex 指定居中排布那个图片
+*/
   const rearrange = (centerIndex) => {
     const cacheImgsArrangeArr = JSON.parse(JSON.stringify(imgsArrangeArr));
-    const centerPos = Constant.centerPos;
-    const hPosRange = Constant.hPosRange;
-    const vPosRange = Constant.vPosRange;
+    const centerPos = Constant.current.centerPos;
+    const hPosRange = Constant.current.hPosRange;
+    const vPosRange = Constant.current.vPosRange;
     const hPosRangeLeftSecX = hPosRange.leftSecX;
     const hPosRangeRightSecX = hPosRange.rightSecX;
     const hPosRangeY = hPosRange.y;
@@ -139,7 +94,7 @@ export const App = () => {
     });
 
     //布局左右两侧的图片
-    for (var i = 0, j = cacheImgsArrangeArr.length, k = j / 2; i < j; i++) {
+    for (let i = 0, j = cacheImgsArrangeArr.length, k = j / 2; i < j; i++) {
       let hPosRangeLORX = null;
       //前半部分布局左边,右半部分布局右边
       if (i < k) {
@@ -163,6 +118,47 @@ export const App = () => {
     cacheImgsArrangeArr.splice(centerIndex, 0, imgsArrangeCenterArr[0]);
     setImgsArrangeArr(cacheImgsArrangeArr);
   }
+
+  useEffect(() => {
+    //首先拿到舞台的大小
+    const stageW = stateRef.current.scrollWidth;
+    const stageH = stateRef.current.scrollHeight;
+
+    const halfStageW = Math.floor(stageW / 2);
+    const halfStageH = Math.floor(stageH / 2);
+    const imgW = imgRef.current.scrollWidth;
+    const imgH = imgRef.current.scrollHeight;
+
+    const halfImgW = Math.floor(imgW / 2);
+    const halfImgH = Math.floor(imgH / 2);
+    /**
+     * 计算中心图片的位置点
+     */
+    Constant.current.centerPos = {
+      left: halfStageW - halfImgW,
+      top: halfStageH - halfImgH
+    };
+
+    //计算左侧右侧图片区域排布位置的取值范围
+    Constant.current.hPosRange.leftSecX[0] = -halfImgW;
+    Constant.current.hPosRange.leftSecX[1] = halfStageW - halfImgW * 3;
+
+    Constant.current.hPosRange.rightSecX[0] = halfStageW + halfImgW;
+    Constant.current.hPosRange.rightSecX[1] = stageW - halfImgW;
+
+    Constant.current.hPosRange.y[0] = -halfImgH;
+    Constant.current.hPosRange.y[1] = stageH - halfImgH;
+
+    //计算左侧右侧图片区域排布位置的取值范围
+    Constant.current.vPosRange.topY[0] = -halfImgH;
+    Constant.current.vPosRange.topY[1] = halfStageH - halfImgH * 3;
+
+    Constant.current.vPosRange.x[0] = halfImgW - imgW;
+    Constant.current.vPosRange.x[1] = halfImgW;
+
+    let num = Math.floor(Math.random() * 10);
+    rearrange(num);
+  }, []);
 
   const center = (index) => {
     rearrange(index);

@@ -5,27 +5,27 @@ export const imageData = [
         "desc": "this is hello ketty image"
     },
     {
-        "fileName": "22.png",
+        "fileName": "11.png",
         "title": "hello kitty me me da~~~",
         "desc": "this is hello ketty image"
     },
     {
-        "fileName": "1.jpg",
+        "fileName": "11.png",
         "title": "hello kitty me me da~~~",
         "desc": "this is hello ketty image"
     },
     {
-        "fileName": "2.jpg",
+        "fileName": "11.png",
         "title": "hello kitty me me da~~~",
         "desc": "this is hello ketty image"
     },
     {
-        "fileName": "3.jpg",
+        "fileName": "11.png",
         "title": "hello kitty me me da~~~",
         "desc": "this is hello ketty image"
     },
     {
-        "fileName": "4.jpg",
+        "fileName": "11.png",
         "title": "hello kitty me me da~~~",
         "desc": "this is hello ketty image"
     }
