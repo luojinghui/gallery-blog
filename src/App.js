@@ -13,8 +13,8 @@ import { ControllerUnit } from './componentes/ControllerUnit'
 import './styles/App.css';
 
 /**
- *获取图片相关的数据
- *利用自执行函数,将图片信息转换成图片URL路径信息
+ * 获取图片相关的数据
+* 利用自执行函数,将图片信息转换成图片URL路径信息
  */
 const imageDatas = (function genImageURL(imageDatasArr) {
   for (let i = 0; i < imageDatasArr.length; i++) {
@@ -46,9 +46,9 @@ export const App = () => {
   });
 
   /**
-*重新布局所有图片
-*@param: centerIndex 指定居中排布那个图片
-*/
+  * 重新布局所有图片
+  * @param: centerIndex 指定居中排布那个图片
+  */
   const rearrange = (centerIndex) => {
     const cacheImgsArrangeArr = JSON.parse(JSON.stringify(imgsArrangeArr));
     const centerPos = Constant.current.centerPos;
