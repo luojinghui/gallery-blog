@@ -6,11 +6,9 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react'
-import { imageData } from './data/index';
-import { ImgFigure } from './componentes/ImgFigure'
-import { ControllerUnit } from './componentes/ControllerUnit'
-
-import './styles/App.css';
+import { imageData } from '../../data/index';
+import { ImgFigure } from '../../componentes/ImgFigure'
+import { ControllerUnit } from '../../componentes/ControllerUnit'
 
 /**
  * 获取图片相关的数据
@@ -20,7 +18,7 @@ const imageDatas = (function genImageURL(imageDatasArr) {
   for (let i = 0; i < imageDatasArr.length; i++) {
     const singleImageData = imageDatasArr[i];
 
-    singleImageData.imageURL = require('./images/' + singleImageData.fileName);
+    singleImageData.imageURL = require('../../images/' + singleImageData.fileName);
     imageDatasArr[i] = singleImageData;
   }
   return imageDatasArr;
@@ -32,11 +30,12 @@ const getRangeRandom = (low, high) => Math.floor(Math.random() * (high - low) + 
 //获取0~30°之间的一个任意正负值
 const get30DegRandom = () => (Math.random() > 0.5 ? '' : '-') + Math.floor(Math.random() * 30);
 
-export const App = () => {
+export default function Home() {
   const initState = createState();
   const cacheImgs = useRef(initState);
   const [imgsArrangeArr, setImgsArrangeArr] = useState(initState);
-  const [centerIndex, setCenterIndex] = useState(0);
+  const randomNum = Math.floor(Math.random() * imageDatas.length);
+  const [centerIndex, setCenterIndex] = useState(randomNum);
   const imgRef = useRef(null);
   const stateRef = useRef(null);
 
@@ -49,7 +48,7 @@ export const App = () => {
   });
 
   function createState() {
-    const imgsRrr =  imageDatas.map(() => ({
+    const imgsRrr = imageDatas.map(() => ({
       pos: { left: 0, top: 0 },
       rotate: 0,
       isInverse: false,
@@ -60,41 +59,45 @@ export const App = () => {
   }
 
   useEffect(() => {
-    //首先拿到舞台的大小
-    const stageW = stateRef.current.scrollWidth;
-    const stageH = stateRef.current.scrollHeight;
+    function initLayout() {
+      //首先拿到舞台的大小
+      const stageW = stateRef.current.scrollWidth;
+      const stageH = stateRef.current.scrollHeight;
 
-    const halfStageW = Math.floor(stageW / 2);
-    const halfStageH = Math.floor(stageH / 2);
-    const imgW = imgRef.current.scrollWidth;
-    const imgH = imgRef.current.scrollHeight;
+      const halfStageW = Math.floor(stageW / 2);
+      const halfStageH = Math.floor(stageH / 2);
+      const imgW = imgRef.current.scrollWidth;
+      const imgH = imgRef.current.scrollHeight;
 
-    const halfImgW = Math.floor(imgW / 2);
-    const halfImgH = Math.floor(imgH / 2);
-    /**
-     * 计算中心图片的位置点
-     */
-    Constant.current.centerPos = {
-      left: halfStageW - halfImgW,
-      top: halfStageH - halfImgH
-    };
+      const halfImgW = Math.floor(imgW / 2);
+      const halfImgH = Math.floor(imgH / 2);
+      /**
+       * 计算中心图片的位置点
+       */
+      Constant.current.centerPos = {
+        left: halfStageW - halfImgW,
+        top: halfStageH - halfImgH
+      };
 
-    //计算左侧右侧图片区域排布位置的取值范围
-    Constant.current.hPosRange.leftSecX[0] = -halfImgW;
-    Constant.current.hPosRange.leftSecX[1] = halfStageW - halfImgW * 3;
+      //计算左侧右侧图片区域排布位置的取值范围
+      Constant.current.hPosRange.leftSecX[0] = -halfImgW;
+      Constant.current.hPosRange.leftSecX[1] = halfStageW - halfImgW * 3;
 
-    Constant.current.hPosRange.rightSecX[0] = halfStageW + halfImgW;
-    Constant.current.hPosRange.rightSecX[1] = stageW - halfImgW;
+      Constant.current.hPosRange.rightSecX[0] = halfStageW + halfImgW;
+      Constant.current.hPosRange.rightSecX[1] = stageW - halfImgW;
 
-    Constant.current.hPosRange.y[0] = -halfImgH;
-    Constant.current.hPosRange.y[1] = stageH - halfImgH;
+      Constant.current.hPosRange.y[0] = -halfImgH;
+      Constant.current.hPosRange.y[1] = stageH - halfImgH;
 
-    //计算左侧右侧图片区域排布位置的取值范围
-    Constant.current.vPosRange.topY[0] = -halfImgH;
-    Constant.current.vPosRange.topY[1] = halfStageH - halfImgH * 3;
+      //计算左侧右侧图片区域排布位置的取值范围
+      Constant.current.vPosRange.topY[0] = -halfImgH;
+      Constant.current.vPosRange.topY[1] = halfStageH - halfImgH * 3;
 
-    Constant.current.vPosRange.x[0] = halfImgW - imgW;
-    Constant.current.vPosRange.x[1] = halfImgW;
+      Constant.current.vPosRange.x[0] = halfImgW - imgW;
+      Constant.current.vPosRange.x[1] = halfImgW;
+    }
+
+    initLayout();
   }, []);
 
   useEffect(() => {
@@ -164,8 +167,7 @@ export const App = () => {
       cacheImgsArrangeArr.splice(topImgSpliceIndex, 0, imgsArrangeTopArr[0]);
     }
     cacheImgsArrangeArr.splice(centerIndex, 0, imgsArrangeCenterArr[0]);
-    setImgsArrangeArr(cacheImgsArrangeArr);  
-
+    setImgsArrangeArr(cacheImgsArrangeArr);
   }, [centerIndex]);
 
   const center = (index) => {
