@@ -33,7 +33,10 @@ const getRangeRandom = (low, high) => Math.floor(Math.random() * (high - low) + 
 const get30DegRandom = () => (Math.random() > 0.5 ? '' : '-') + Math.floor(Math.random() * 30);
 
 export const App = () => {
-  const [imgsArrangeArr, setImgsArrangeArr] = useState(createState);
+  const initState = createState();
+  const cacheImgs = useRef(initState);
+  const [imgsArrangeArr, setImgsArrangeArr] = useState(initState);
+  const [centerIndex, setCenterIndex] = useState(0);
   const imgRef = useRef(null);
   const stateRef = useRef(null);
 
@@ -45,12 +48,57 @@ export const App = () => {
     vPosRange: { x: [0, 0], topY: [0, 0] }
   });
 
-  /**
-  * 重新布局所有图片
-  * @param: centerIndex 指定居中排布那个图片
-  */
-  const rearrange = (centerIndex) => {
-    const cacheImgsArrangeArr = JSON.parse(JSON.stringify(imgsArrangeArr));
+  function createState() {
+    const imgsRrr =  imageDatas.map(() => ({
+      pos: { left: 0, top: 0 },
+      rotate: 0,
+      isInverse: false,
+      isCenter: false
+    }));
+
+    return imgsRrr;
+  }
+
+  useEffect(() => {
+    //首先拿到舞台的大小
+    const stageW = stateRef.current.scrollWidth;
+    const stageH = stateRef.current.scrollHeight;
+
+    const halfStageW = Math.floor(stageW / 2);
+    const halfStageH = Math.floor(stageH / 2);
+    const imgW = imgRef.current.scrollWidth;
+    const imgH = imgRef.current.scrollHeight;
+
+    const halfImgW = Math.floor(imgW / 2);
+    const halfImgH = Math.floor(imgH / 2);
+    /**
+     * 计算中心图片的位置点
+     */
+    Constant.current.centerPos = {
+      left: halfStageW - halfImgW,
+      top: halfStageH - halfImgH
+    };
+
+    //计算左侧右侧图片区域排布位置的取值范围
+    Constant.current.hPosRange.leftSecX[0] = -halfImgW;
+    Constant.current.hPosRange.leftSecX[1] = halfStageW - halfImgW * 3;
+
+    Constant.current.hPosRange.rightSecX[0] = halfStageW + halfImgW;
+    Constant.current.hPosRange.rightSecX[1] = stageW - halfImgW;
+
+    Constant.current.hPosRange.y[0] = -halfImgH;
+    Constant.current.hPosRange.y[1] = stageH - halfImgH;
+
+    //计算左侧右侧图片区域排布位置的取值范围
+    Constant.current.vPosRange.topY[0] = -halfImgH;
+    Constant.current.vPosRange.topY[1] = halfStageH - halfImgH * 3;
+
+    Constant.current.vPosRange.x[0] = halfImgW - imgW;
+    Constant.current.vPosRange.x[1] = halfImgW;
+  }, []);
+
+  useEffect(() => {
+    const cacheImgsArrangeArr = JSON.parse(JSON.stringify(cacheImgs.current));
     const centerPos = Constant.current.centerPos;
     const hPosRange = Constant.current.hPosRange;
     const vPosRange = Constant.current.vPosRange;
@@ -116,52 +164,12 @@ export const App = () => {
       cacheImgsArrangeArr.splice(topImgSpliceIndex, 0, imgsArrangeTopArr[0]);
     }
     cacheImgsArrangeArr.splice(centerIndex, 0, imgsArrangeCenterArr[0]);
-    setImgsArrangeArr(cacheImgsArrangeArr);
-  }
+    setImgsArrangeArr(cacheImgsArrangeArr);  
 
-  useEffect(() => {
-    //首先拿到舞台的大小
-    const stageW = stateRef.current.scrollWidth;
-    const stageH = stateRef.current.scrollHeight;
-
-    const halfStageW = Math.floor(stageW / 2);
-    const halfStageH = Math.floor(stageH / 2);
-    const imgW = imgRef.current.scrollWidth;
-    const imgH = imgRef.current.scrollHeight;
-
-    const halfImgW = Math.floor(imgW / 2);
-    const halfImgH = Math.floor(imgH / 2);
-    /**
-     * 计算中心图片的位置点
-     */
-    Constant.current.centerPos = {
-      left: halfStageW - halfImgW,
-      top: halfStageH - halfImgH
-    };
-
-    //计算左侧右侧图片区域排布位置的取值范围
-    Constant.current.hPosRange.leftSecX[0] = -halfImgW;
-    Constant.current.hPosRange.leftSecX[1] = halfStageW - halfImgW * 3;
-
-    Constant.current.hPosRange.rightSecX[0] = halfStageW + halfImgW;
-    Constant.current.hPosRange.rightSecX[1] = stageW - halfImgW;
-
-    Constant.current.hPosRange.y[0] = -halfImgH;
-    Constant.current.hPosRange.y[1] = stageH - halfImgH;
-
-    //计算左侧右侧图片区域排布位置的取值范围
-    Constant.current.vPosRange.topY[0] = -halfImgH;
-    Constant.current.vPosRange.topY[1] = halfStageH - halfImgH * 3;
-
-    Constant.current.vPosRange.x[0] = halfImgW - imgW;
-    Constant.current.vPosRange.x[1] = halfImgW;
-
-    let num = Math.floor(Math.random() * 10);
-    rearrange(num);
-  }, []);
+  }, [centerIndex]);
 
   const center = (index) => {
-    rearrange(index);
+    setCenterIndex(index);
   }
 
   const inverse = (index) => {
@@ -207,15 +215,6 @@ export const App = () => {
     </section>
   );
 };
-
-function createState() {
-  return imageDatas.map(() => ({
-    pos: { left: 0, top: 0 },
-    rotate: 0,
-    isInverse: false,
-    isCenter: false
-  }));
-}
 
 // export default class App extends Component {
 //   constructor(props) {
